@@ -11,7 +11,7 @@ def cal_matrix(vx, vy, wz):
     W = 0.0940   # Sideways distance from center to wheels
     
     # --- Motor Limits ---
-    MAX_RPM = 200 
+    MAX_RPM = 255
 
     # 1. Calculate raw radians per second
     # w1: Front-Left | w2: Front-Right | w3: Back-Left | w4: Back-Right

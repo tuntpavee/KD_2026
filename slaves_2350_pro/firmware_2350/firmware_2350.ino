@@ -1,11 +1,22 @@
 #include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
+#include <Servo.h>
 
 #define BUZZER_PIN 22
 #define RGB_PIN 23
 #define NUM_LEDS 2
 
+Servo servo1;
+Servo servo2;
+Servo servo3;
+
 Adafruit_NeoPixel pixels(NUM_LEDS, RGB_PIN, NEO_GRB + NEO_KHZ800);
+
+void attach_servo(){
+  servo1.attach(0);
+  servo2.attach(2);
+  servo3.attach(7);
+}
 
 void playESCStartup() {
   // 1. Three short rising beeps with Red/Yellow flashes
@@ -59,7 +70,7 @@ void read_encoder(){
 void setup() {
   // Initialize LEDs
   pixels.begin();
-  pixels.setBrightness(0); // 255 is very bright for desk work!
+  pixels.setBrightness(50); // 255 is very bright for desk work!
 
   // Initialize Buzzer
   pinMode(BUZZER_PIN, OUTPUT);
@@ -67,9 +78,12 @@ void setup() {
   // Run startup sequence
   playESCStartup();
   rgb_status();
+  attach_servo();
 }
 
 void loop() {
   // Your Mecanum/BDSM control logic goes here
   rgb_status();
+
+  
 }

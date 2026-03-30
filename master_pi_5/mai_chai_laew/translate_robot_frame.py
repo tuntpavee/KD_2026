@@ -13,7 +13,7 @@ METERS_PER_TICK = (math.pi * WHEEL_DIAMETER_M) / TICKS_PER_REV
 
 print("Connecting to hardware...")
 sensor_slave = connect_to_arduino('/dev/ttyUSB0', 115200)
-motor_slave = connect_to_motors('/dev/ttyACM0', 9600)
+motor_slave = connect_to_motors('/dev/ttyUSB0', 115200)
 
 if sensor_slave is None or motor_slave is None:
     print("Failed to connect to sensor or motor slave.")
@@ -45,17 +45,17 @@ try:
     print(f"Starting position locked at: {prev_ticks}\n")
 
     # --- B. Calculate and Send Motor Speeds ---
-    target_vx = 10.0  # Move forward at 0.5 m/s
+    target_vx = 0.2  # Move forward at 0.5 m/s
     target_vy = 0.0
     target_wz = 0.0
 
     rpm_m1, rpm_m2, rpm_m3, rpm_m4 = cal_matrix(target_vx, target_vy, target_wz)
     print(f"Target RPMs -> M1:{rpm_m1} | M2:{rpm_m2} | M3:{rpm_m3} | M4:{rpm_m4}")
     
-    send_motor_command(motor_slave, "m1", rpm_m2)
-    send_motor_command(motor_slave, "m2", rpm_m4)
+    send_motor_command(motor_slave, "m1", rpm_m1)
+    send_motor_command(motor_slave, "m2", rpm_m2)
     send_motor_command(motor_slave, "m3", rpm_m3)
-    send_motor_command(motor_slave, "m4", rpm_m1)
+    send_motor_command(motor_slave, "m4", rpm_m4)
 
     # --- C. The Odometry Measurement Loop ---
     while is_moving:

@@ -37,7 +37,7 @@ def read_encoders_once(arduino):
                     m2 = int(string_values[1])
                     m3 = int(string_values[2])
                     m4 = int(string_values[3])
-                    return (m2, m1, m4, m3)
+                    return (m1, m2, m3, m4)
                 except ValueError:
                     pass # Ignore corrupted data
                     

@@ -9,7 +9,7 @@ import math
 # CONFIGURATION
 # ==========================================
 WHEEL_DIAMETER_CM = 6.3 
-TICKS_PER_REV = 2171
+TICKS_PER_REV = 4304
 CM_PER_TICK = (math.pi * WHEEL_DIAMETER_CM) / TICKS_PER_REV
 
 # ==========================================
@@ -17,7 +17,7 @@ CM_PER_TICK = (math.pi * WHEEL_DIAMETER_CM) / TICKS_PER_REV
 # ==========================================
 print("Connecting to hardware...")
 sensor_slave = connect_to_arduino('/dev/ttyUSB0', 115200)
-motor_slave = connect_to_motors('/dev/ttyACM0', 9600)
+motor_slave = connect_to_motors('/dev/ttyUSB0', 115200)
 
 if sensor_slave is None or motor_slave is None:
     print("Failed to connect to sensor or motor slave")
@@ -36,7 +36,7 @@ try:
     target_distance_cm = float(input("Enter target distance in cm (e.g. 20.0): "))
 
     # Calculate speeds based on target velocity
-    target_vx = 0.7
+    target_vx = 0.2
     target_vy = 0.0
     target_wz = 0.0
     rpm_m1, rpm_m2, rpm_m3, rpm_m4 = cal_matrix(target_vx, target_vy, target_wz)
@@ -49,7 +49,7 @@ try:
     print(f"Starting M1 at CRUISE speed: {current_rpm} RPM...")
 
     # SEND COMMAND ONCE BEFORE THE LOOP!
-    send_motor_command(motor_slave, "m3", current_rpm)
+    send_motor_command(motor_slave, "m1", current_rpm)
     
     # ==========================================
     # MEASUREMENT LOOP
@@ -82,7 +82,7 @@ try:
                 # We use math.copysign to ensure if we were going backwards (-200 RPM), 
                 # we creep backwards (-40 RPM) too.
                 send_rpm = int(math.copysign(current_rpm, rpm_m1)) 
-                send_motor_command(motor_slave, "m3", send_rpm)
+                send_motor_command(motor_slave, "m1", send_rpm)
             
             # --- 2. THE STOP CONDITION ---
             # Check if we hit or passed the target
@@ -90,7 +90,7 @@ try:
                 print(f"\n\nTarget distance of {target_distance_cm} cm reached! Stopping.")
                 
                 # Stop the motor instantly
-                send_motor_command(motor_slave, "m3", 0)
+                send_motor_command(motor_slave, "m1", 0)
                 is_moving = False
                 
             prev_ticks = curr_ticks

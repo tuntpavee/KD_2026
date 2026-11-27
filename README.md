@@ -42,18 +42,29 @@ A 4-wheel **mecanum-drive robot** controlled by a **Raspberry Pi 5**. The Pi tur
 |---|---|
 | **Computer** | Connects to the Pi over **SSH** (via its IP address) to run scripts |
 | **Raspberry Pi 5** (`master_pi_5/`) | The "master": computes kinematics, sends RPM commands, reads encoder ticks |
-| **Encoder shield + motor driver** | The "slave": receives RPM packets over **serial**, drives the motors, reports encoder counts |
+| **Encoder shield + motor driver** (Arduino, `controlrpm/`) | The "slave": receives target RPMs over **serial**, holds each wheel at that speed with PID, reports actual RPM |
 | **4 × encoder motors + mecanum wheels** | Drive the robot in any direction |
 | **12 V LiPo battery** | Powers the motors |
 
-### Serial protocol
+### Motor controller firmware (`controlrpm/controlrpm.ino`)
 
-Both directions use a simple bracketed, comma-separated packet at **115200 baud**:
+The Arduino with the QGPMaker motor/encoder shield runs a **closed-loop RPM controller** for all four motors:
 
-| Direction | Packet | Example |
+- **Every 20 ms:** reads the 4 encoders, works out each wheel's actual RPM (4320 counts per revolution), and runs a **PID loop** to adjust the motor PWM towards the target RPM. Currently `Kp = 6`, `Ki = Kd = 0`.
+- **Every 50 ms:** sends telemetry back to the Pi.
+- **Safety:** the PWM is limited to 0…255 when driving forward and −255…0 when driving backward, so a motor never actively brakes or reverses against its target. A target of 0 stops the motor and resets its PID state.
+- **Wiring tweaks:** encoders M3 and M4 are inverted so all wheels count forward the same way. Motor 4 is driven through custom pins (`A0`, `A1` + shield PWM channel 0) instead of the shield's own M4 output.
+
+Required Arduino libraries: `QGPMaker_MotorShield` and `QGPMaker_Encoder`.
+
+### Serial protocol (115200 baud)
+
+| Direction | Format | Example |
 |---|---|---|
-| Pi → motor driver | `<m1,m2,m3,m4>` target RPMs | `<50,50,-50,-50>` |
-| Encoder board → Pi | `<m1,m2,m3,m4>` encoder ticks | `<1203,1198,1210,1201>` |
+| Pi → Arduino | one line per motor: `m<number>:<target rpm>` | `m1:50` |
+| Arduino → Pi | RPM and PWM for each motor, every 50 ms | `<48.2,120,50.1,118,49.7,121,50.3,119>` |
+
+On startup the Arduino prints `INIT`.
 
 ### Wheel layout
 
@@ -120,7 +131,7 @@ KD_2026/
 │   ├── Inverse_kine.py                # Enter target x, y, heading, time → drive there
 │   ├── maccanum_matrix.py             # Body velocity → wheel RPM
 │   ├── position_to_velocity_matrix.py # Target position → body velocity → RPM
-│   ├── control_motor.py               # Serial connection + send <m1,m2,m3,m4> RPM packet
+│   ├── control_motor.py               # Serial connection + send RPM commands
 │   ├── read_encoder.py                # Serial connection + read encoder tick packets
 │   ├── tickperrev.py                  # Calibrate ticks per wheel revolution by hand
 │   ├── count_cm.py                    # Drive a set distance using encoder feedback
@@ -130,6 +141,7 @@ KD_2026/
 │   ├── master.py                      # Serial test with the RP2350 board (buzzer / LED)
 │   ├── Robot_direction.md             # Wheel numbering
 │   └── mai_chai_laew/                 # Old / unused scripts
+├── controlrpm/controlrpm.ino           # Arduino motor firmware: PID RPM control + telemetry
 ├── slaves_2350_pro/firmware_2350/     # RP2350 firmware (buzzer, RGB LEDs, servos)
 ├── Serial_test/                       # Arduino serial test sketch
 ├── simulation/test.m                  # MATLAB frame-transformation test

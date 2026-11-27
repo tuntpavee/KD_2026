@@ -32,10 +32,10 @@ def cal_matrix(vx, vy, wz):
         scale_ratio = MAX_RPM / max_calculated
         
         # Scale them all down equally to preserve the movement angle
-        rpm_m1 = int(round(rpm_1 * scale_ratio))
-        rpm_m2 = int(round(rpm_2 * scale_ratio))
-        rpm_m3 = int(round(rpm_3 * scale_ratio))
-        rpm_m4 = int(round(rpm_4 * scale_ratio))
+        rpm_1 = int(round(rpm_1 * scale_ratio))
+        rpm_2 = int(round(rpm_2 * scale_ratio))
+        rpm_3 = int(round(rpm_3 * scale_ratio))
+        rpm_4 = int(round(rpm_4 * scale_ratio))
         
         # Optional: Print a warning so you know it was scaled down
         print("  [!] Warning: Speeds scaled down to respect MAX_RPM limit.")

@@ -1,9 +1,7 @@
 import math
 
-def get_velocities_from_position(target_x, target_y, target_theta, dt=1.0):
-    curr_x = 0
-    curr_y = 0
-    curr_theta = 0
+def get_velocities_from_position(target_x, target_y, target_theta, dt=1.0,
+                                 curr_x=0.0, curr_y=0.0, curr_theta=0.0):
     dx_global = target_x - curr_x
     dy_global = target_y - curr_y
     dtheta = target_theta - curr_theta
@@ -28,7 +26,8 @@ def cal_matrix_from_position(curr_pos, target_pos, dt=1.0):
     target_x, target_y, target_theta = target_pos
 
     # Get the required body velocities
-    vx, vy, wz = get_velocities_from_position(curr_x, curr_y, curr_theta, target_x, target_y, target_theta, dt)
+    vx, vy, wz = get_velocities_from_position(target_x, target_y, target_theta, dt,
+                                              curr_x, curr_y, curr_theta)
 
     # Robot Physical Parameters (Meters)
     r = 0.0315
@@ -56,10 +55,10 @@ def cal_matrix_from_position(curr_pos, target_pos, dt=1.0):
         scale_ratio = MAX_RPM / max_calculated
         
         # Scale them all down equally to preserve the movement trajectory
-        rpm_m1 = int(round(rpm_1 * scale_ratio))
-        rpm_m2 = int(round(rpm_2 * scale_ratio))
-        rpm_m3 = int(round(rpm_3 * scale_ratio))
-        rpm_m4 = int(round(rpm_4 * scale_ratio))
+        rpm_1 = int(round(rpm_1 * scale_ratio))
+        rpm_2 = int(round(rpm_2 * scale_ratio))
+        rpm_3 = int(round(rpm_3 * scale_ratio))
+        rpm_4 = int(round(rpm_4 * scale_ratio))
         
         print(f"  [!] Warning: Speeds scaled down to respect MAX_RPM limit. (Ratio: {scale_ratio:.2f})")
 

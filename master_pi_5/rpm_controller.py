@@ -31,20 +31,19 @@ try:
                 # Try to decode it to readable text
                 line = raw_data.decode('utf-8').strip()
                 
-                # Check if it's our formatted packet: <m4,m3,m2,m1>
+                # Check if it's our formatted packet: <rpm1,pwm1,rpm2,pwm2,rpm3,pwm3,rpm4,pwm4>
                 if line.startswith('<') and line.endswith('>'):
                     # Strip the brackets
                     clean_line = line[1:-1]
                     parts = clean_line.split(',')
-                    
-                    if len(parts) == 4:
-                        m4 = float(parts[0])
-                        m3 = float(parts[1])
-                        m2 = float(parts[2])
-                        m1 = float(parts[3])
-                        
+
+                    if len(parts) == 8:
+                        rpm = [float(parts[i]) for i in range(0, 8, 2)]
+                        pwm = [int(float(parts[i])) for i in range(1, 8, 2)]
+
                         # Print the success!
-                        print(f"SUCCESS -> M1: {m1:.1f} | M2: {m2:.1f} | M3: {m3:.1f} | M4: {m4:.1f}")
+                        print(f"SUCCESS -> M1: {rpm[0]:.1f} rpm ({pwm[0]}) | M2: {rpm[1]:.1f} rpm ({pwm[1]}) | "
+                              f"M3: {rpm[2]:.1f} rpm ({pwm[2]}) | M4: {rpm[3]:.1f} rpm ({pwm[3]})")
                     else:
                         print(f"ERROR: Found brackets, but wrong number of parts. Line: {line}")
                 else:

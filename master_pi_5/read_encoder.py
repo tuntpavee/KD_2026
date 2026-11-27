@@ -43,3 +43,24 @@ def read_encoders_once(arduino):
                     
     # If buffer was empty or data was corrupted, return None
     return None
+def read_telemetry_once(arduino):
+    """
+    Reads one telemetry line from controlrpm.ino.
+    Format: <rpm1,pwm1,rpm2,pwm2,rpm3,pwm3,rpm4,pwm4>
+    Returns (rpms, pwms) as two lists of 4, or None if no valid line is ready.
+    """
+    if arduino and arduino.in_waiting > 0:
+        raw_line = arduino.readline().decode('utf-8', errors='ignore').strip()
+
+        if raw_line.startswith('<') and raw_line.endswith('>'):
+            string_values = raw_line[1:-1].split(',')
+
+            if len(string_values) == 8:
+                try:
+                    rpms = [float(string_values[i]) for i in range(0, 8, 2)]
+                    pwms = [int(float(string_values[i])) for i in range(1, 8, 2)]
+                    return rpms, pwms
+                except ValueError:
+                    pass # Ignore corrupted data
+
+    return None

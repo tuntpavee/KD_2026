@@ -66,6 +66,11 @@ Required Arduino libraries: `QGPMaker_MotorShield` and `QGPMaker_Encoder`.
 
 On startup the Arduino prints `INIT`.
 
+On the Pi side:
+- `control_motor.send_rpm_packet(ser, m1, m2, m3, m4)` sends all four targets.
+- `control_motor.send_motor_command(ser, "m1", rpm)` sends one motor's target.
+- `read_encoder.read_telemetry_once(ser)` returns `(rpms, pwms)`.
+
 ### Wheel layout
 
 From [`master_pi_5/Robot_direction.md`](master_pi_5/Robot_direction.md):
@@ -132,10 +137,10 @@ KD_2026/
 │   ├── maccanum_matrix.py             # Body velocity → wheel RPM
 │   ├── position_to_velocity_matrix.py # Target position → body velocity → RPM
 │   ├── control_motor.py               # Serial connection + send RPM commands
-│   ├── read_encoder.py                # Serial connection + read encoder tick packets
+│   ├── read_encoder.py                # Serial connection + read telemetry from the Arduino
 │   ├── tickperrev.py                  # Calibrate ticks per wheel revolution by hand
 │   ├── count_cm.py                    # Drive a set distance using encoder feedback
-│   ├── rpm_controller.py              # Debug tool: print incoming RPM data
+│   ├── rpm_controller.py              # Debug tool: print live RPM and PWM of each motor
 │   ├── raw_motor_control.py           # Drive all motors at a fixed PWM
 │   ├── checkup.py                     # Check both serial connections
 │   ├── master.py                      # Serial test with the RP2350 board (buzzer / LED)
